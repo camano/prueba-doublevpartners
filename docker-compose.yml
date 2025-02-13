@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  doublevpartners_app:
+    container_name: prueba-doublevpartners
+    image: doublevpartners:v1
+    build: .
+    ports:
+      - 9001:9001
+    depends_on:
+      - doublevpartners_db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://doublevpartners_db:5432/dbdoublevpartners
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+    networks:
+      - doublevpartners
+
+
+  doublevpartners_db:
+    container_name: doublevpartners_db
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      DATABASE_HOST: 127.0.0.1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: dbdoublevpartners
+    networks:
+      - doublevpartners
+
+networks:
+  doublevpartners:
+    driver: bridge

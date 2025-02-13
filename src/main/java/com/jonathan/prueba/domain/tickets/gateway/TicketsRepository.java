@@ -2,6 +2,7 @@ package com.jonathan.prueba.domain.tickets.gateway;
 
 import com.jonathan.prueba.domain.tickets.model.Tickets;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface TicketsRepository {
 
@@ -11,8 +12,10 @@ public interface TicketsRepository {
 
     void eliminarTicket(Long id);
 
-    Page<Tickets>obtenerTicket(int pagina, int tamano);
+    Page<Tickets>obtenerTicket(Pageable pageable);
 
     Tickets obtenerTicketsId(Long id);
+
+    Page<Tickets>obtenerTicketEstatus(Long estatus,Pageable pageable);
 
 }

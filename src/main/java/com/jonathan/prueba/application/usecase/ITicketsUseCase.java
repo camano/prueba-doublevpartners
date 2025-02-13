@@ -7,6 +7,8 @@ import com.jonathan.prueba.domain.tickets.model.Tickets;
 import com.jonathan.prueba.domain.tickets.model.TicketsBody;
 import com.jonathan.prueba.domain.tickets.model.TicketsResponse;
 import com.jonathan.prueba.domain.tickets.usecase.TicketsUseCase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,6 +29,7 @@ public class ITicketsUseCase implements TicketsUseCase {
     @Override
     public TicketsResponse addTickets(TicketsBody ticketsBody) {
         Estatus estatus = estatusRepository.findByNombre("abierto");
+        ticketsBody.setFechaCreacion(LocalDate.from(LocalDate.now()));
         Tickets tickets = ticketsRepository.crearTicket(mapperTickets(ticketsBody,estatus));
         return mapperTicketsResponse(tickets);
     }
@@ -36,12 +39,46 @@ public class ITicketsUseCase implements TicketsUseCase {
         return mapperTicketsResponse(ticketsRepository.obtenerTicketsId(id));
     }
 
+    @Override
+    public TicketsResponse updateTickets(Long id, TicketsBody ticketsBody) {
+        Tickets ticketsExiste= ticketsRepository.obtenerTicketsId(id);
+        if(ticketsExiste != null){
+            Estatus estatus = estatusRepository.findByNombre(ticketsBody.getEstatus());
+            ticketsBody.setId(ticketsExiste.getId());
+            ticketsBody.setFechaCreacion(ticketsExiste.getFechaCreacion());
+            ticketsBody.setFechaActualizacion(LocalDate.from(LocalDate.now()));
+            Tickets tickets = ticketsRepository.crearTicket(mapperTickets(ticketsBody,estatus));
+            return mapperTicketsResponse(tickets);
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteTickets(Long id) {
+        ticketsRepository.eliminarTicket(id);
+
+    }
+
+    @Override
+    public Page<TicketsResponse> findByAll(Pageable pageable) {
+        return ticketsRepository.obtenerTicket(pageable)
+                .map(this::mapperTicketsResponse);
+    }
+
+    @Override
+    public Page<TicketsResponse> findByAllEstatus(String estatus, Pageable pageable) {
+        Estatus estatu = estatusRepository.findByNombre(estatus);
+        return ticketsRepository.obtenerTicketEstatus(estatu.getEstadoId(),pageable)
+                .map(this::mapperTicketsResponse);
+    }
+
 
     public Tickets mapperTickets(TicketsBody ticketsBody,Estatus estatus){
         return Tickets.builder()
+                .id(ticketsBody.getId())
                 .usuario(ticketsBody.getUsuario())
-                .fechaCreacion(LocalDate.from(LocalDate.now()))
-                .fechaActualizacion(LocalDate.from(LocalDate.now()))
+                .fechaCreacion(ticketsBody.getFechaCreacion())
+                .fechaActualizacion(ticketsBody.getFechaActualizacion())
                 .estatus(estatus)
                 .build();
     }
