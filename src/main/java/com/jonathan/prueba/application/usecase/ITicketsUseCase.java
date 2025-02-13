@@ -41,16 +41,15 @@ public class ITicketsUseCase implements TicketsUseCase {
 
     @Override
     public TicketsResponse updateTickets(Long id, TicketsBody ticketsBody) {
-        Tickets ticketsExiste= ticketsRepository.obtenerTicketsId(id);
-        if(ticketsExiste != null){
+            Tickets ticketsExiste= ticketsRepository.obtenerTicketsId(id);
+
             Estatus estatus = estatusRepository.findByNombre(ticketsBody.getEstatus());
             ticketsBody.setId(ticketsExiste.getId());
             ticketsBody.setFechaCreacion(ticketsExiste.getFechaCreacion());
             ticketsBody.setFechaActualizacion(LocalDate.from(LocalDate.now()));
             Tickets tickets = ticketsRepository.crearTicket(mapperTickets(ticketsBody,estatus));
             return mapperTicketsResponse(tickets);
-        }
-        return null;
+
     }
 
     @Override
